@@ -21,14 +21,15 @@ BUILD_ASSERT(DT_NODE_HAS_STATUS(DEFAULT_RADIO_NODE, okay),
 // #define LORAWAN_JOIN_EUI		{ 0x60, 0x81, 0xF9, 0x3B, 0xA8, 0xA6, 0xF0, 0xB6 }
 // #define LORAWAN_APP_KEY			{ 0x73, 0x33, 0x78, 0x62, 0x5D, 0x89, 0xAC, 0x89, 0xEC, 0xDB, 0x61, 0xCD, 0x95, 0x33, 0x13, 0xED }
 
+// Currently requires ChirpStack setup with LoRaWAN 1.0.4 / RP1.0.1
 #define LORAWAN_DEV_EUI                                                        \
   { \
-0x2B, 0x36, 0x53, 0xC1, 0xDA, 0xFE, 0x6F, 0x56 \
+    0x8c, 0x26, 0x2e, 0x11, 0xf2, 0x61, 0xb7, 0xdd \
       }
 #define LORAWAN_JOIN_EUI		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define LORAWAN_APP_KEY                                                        \
   {                                                                            \
-0xFE, 0x2B, 0x7D, 0x20, 0xFF, 0x1E, 0xD1, 0x3C, 0x61, 0xDE, 0x0A, 0xDC, 0x65, 0x5E, 0xC1, 0x31 \
+0x18, 0xA4, 0x1C, 0xC8, 0x3D, 0x27, 0x36, 0x0E, 0x0D, 0x3E, 0x47, 0x53, 0xF5, 0x11, 0xBF, 0xF7 \
   }
 #define LORAWAN_NWK_KEY                                                        \
   {                                                                            \
@@ -41,12 +42,15 @@ BUILD_ASSERT(DT_NODE_HAS_STATUS(DEFAULT_RADIO_NODE, okay),
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(lorawan_class_a);
 
-char data[] = {'h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd'};
+// Max Payload of DR_0 is 11, but "HelloWorld" seems exceeds it
+char data[] =
+    {
+        'h', 'e', 'l', 'l', 'o',
+    };
 
-static void dl_callback(uint8_t port, bool data_pending,
-                        int16_t rssi, int8_t snr,
-                        uint8_t len, const uint8_t *data)
-{
+static void
+dl_callback(uint8_t port, bool data_pending, int16_t rssi, int8_t snr,
+            uint8_t len, const uint8_t *data) {
   LOG_INF("Port %d, Pending %d, RSSI %ddB, SNR %ddBm", port, data_pending, rssi, snr);
   if (data) {
     LOG_HEXDUMP_INF(data, len, "Payload: ");
